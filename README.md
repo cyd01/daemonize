@@ -12,5 +12,8 @@ gcc -static -o daemonize daemonize.c
 
 ```bash
 ./daemonize
+```
+
+```log
 Usage: daemonize Command [Options...]
 ```
