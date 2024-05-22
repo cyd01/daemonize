@@ -34,7 +34,7 @@ void daemonize (char * const *cmd) {
     if ((pid = fork()) < 0){
         fprintf(stderr,"fork fail\n" ) ;
         exit(EXIT_FAILURE) ;
-    } else if (pid != 0) /* child A * /
+    } else if (pid != 0) /* child A */
         exit(0);
 
     /* child B (grandchild) */
