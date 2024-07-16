@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 void daemonize (char * const *cmd) {
     int pid ;
@@ -38,6 +39,35 @@ void daemonize (char * const *cmd) {
         exit(0);
 
     /* child B (grandchild) */
+    /* Get parameters */
+    if( getenv("DAEMONIZE_SLEEP")!=NULL ) {
+        int wait_time = -1 ;
+        if( sscanf(getenv("DAEMONIZE_SLEEP"),"%d",&wait_time)>0 ) {
+            if( wait_time>=0 ) {
+                sleep(wait_time);
+            }
+        }
+    }
+    if( getenv("DAEMONIZE_TIME")!=NULL ) {
+        int wait_hour = -1 ;
+        int wait_min = -1 ;
+        if( sscanf(getenv("DAEMONIZE_TIME"),"%d:%d",&wait_hour,&wait_min)>0 ) {
+            if( (wait_hour>=0) && (wait_hour<24) && (wait_min>=0) && (wait_min<60) ) {
+                struct tm * tm;
+                time_t t = 0 ;
+                while(1) {
+                    t=time(NULL);
+                    if( (tm=localtime(&t))!=NULL) {
+                        if( (tm->tm_hour==wait_hour) && (tm->tm_min==wait_min) ) {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+    }
     // do main command
     execvp(cmd[0],cmd);
 }
@@ -45,6 +75,10 @@ void daemonize (char * const *cmd) {
 int main(int argc, char **argv, char **arge) {
     if( argc==1 ) {
         fprintf(stderr, "Usage: %s Command [Options...]\n",basename(argv[0])) ;
+        fprintf(stderr, "\n");
+        fprintf(stderr, "Environment variables:\n");
+        fprintf(stderr, "    DAEMONIZE_TIME=HH:MM wait for a specific time before starting command\n");
+        fprintf(stderr, "    DAEMONIZE_SLEEP=SS wait for SS seconds before starting command\n");
     } else {
         daemonize( (char * const *)&argv[1] ) ;
     }
