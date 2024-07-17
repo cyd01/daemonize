@@ -60,6 +60,8 @@ void daemonize (char * const *cmd) {
                     if( (tm=localtime(&t))!=NULL) {
                         if( (tm->tm_hour==wait_hour) && (tm->tm_min==wait_min) ) {
                             break;
+                        } else {
+                            sleep(5);
                         }
                     } else {
                         break;
